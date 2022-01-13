@@ -1,0 +1,78 @@
+
+
+
+{% extends 'base.html.twig' %}
+{% block body %}
+
+
+<div id="flex">
+
+<link rel="stylesheet" href={{asset("./Style.min.css")}}>
+<div class="containermenu" id="flexcontainermenu">
+    <span style="color:white; margin-top:10px; margin-left:10px;">
+
+    </span>
+
+    <div id="divrecherche">
+        <form id="formrecherche">
+           <span style="color:white"> Rechercher un film :</span>
+        <input type='text' id="myInput" onkeyup="myFunction()">
+        <button type="submit"><i class="fa fa-times"></i></button>
+        </form>
+
+
+    </div>
+
+<a href='AjoutFilm' class='buttonClassVote'>Ajouter un film</a>
+</div>
+<div class="containertable">
+
+
+</div>
+</div>
+
+
+
+
+<script>
+    function checker(){
+        console.log('test');
+        var result = confirm('Ce film sera supprimé, êtes vous sur ?');
+        if(result == false){
+            event.preventDefault();
+        }
+    }
+</script>
+<script>
+function myFunction() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+</script>
+<script>
+function submitForm() {
+  // Can do some validation here if needed
+
+  document.getElementById('sample_form').submit();  
+
+  return true;
+}
+</html>
+{% endblock body %}
+
+
+
