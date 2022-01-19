@@ -30,20 +30,20 @@ class FilmsController extends AbstractController
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
-            /*
+            
             $omdb = new OMDbAPI('e2f59d');
             $resultat = $omdb->fetch('t', $_POST["films"]["nomFilm"]);
-            if($resultat->data->response == True){
+            
             $desc = $resultat->data->Plot;
             $film->setDescription($desc);
             $entityManager->persist($film);
             $entityManager->flush();
-        }
-        else{
-            echo "film non trouvé !";
-        }
+        
+        
+            
+        
     
-            return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);*/
+            return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('films/new.html.twig', [
