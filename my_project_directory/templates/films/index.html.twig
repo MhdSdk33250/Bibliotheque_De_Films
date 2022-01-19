@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<title>Films index</title>
+
+{% block body %}
+    <h1>Films index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>NomFilm</th>
+                <th>Description</th>
+                <th>Note</th>
+                <th>NombreVotants</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for film in films %}
+            <tr>
+                <td>{{ film.id }}</td>
+                <td>{{ film.nomFilm }}</td>
+                <td>{{ film.description }}</td>
+                <td>{{ film.note }}</td>
+                <td>{{ film.nombreVotants }}</td>
+                <td>
+                    <a href="{{ path('films_show', {'id': film.id}) }}">show</a>
+                    <a href="{{ path('films_edit', {'id': film.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('films_new') }}">Create new</a>
+{% endblock %}

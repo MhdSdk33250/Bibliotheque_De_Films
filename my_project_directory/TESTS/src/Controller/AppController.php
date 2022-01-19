@@ -25,7 +25,7 @@ class AppController extends AbstractController
     */
     public function redirectionAccueil(){
         
-        return $this->redirectToRoute('Homepage');
+        return $this->redirectToRoute('HomePage');
     }
 
     /**
