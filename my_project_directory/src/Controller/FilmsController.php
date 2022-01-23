@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Films;
 use App\Form\FilmsType;
+use App\Form\MassImportType;
 use App\Form\PasswordType;
 use App\Repository\FilmsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,8 +13,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\FilmDescriptionService;
-
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 
 
@@ -31,6 +37,57 @@ class FilmsController extends AbstractController
         return $this->render('films/index.html.twig', [
             'films' => $filmsRepository->findBy([],['note'=>'ASC','nomFilm' => 'DESC']),'erreur'=>$erreur
         ]);
+    }
+    #[Route('/Import', name: 'film-import', methods:  ['GET', 'POST'])]
+    public function Import(Request $request,FilmsRepository $filmsRepository,EntityManagerInterface $entityManager): Response
+    {  
+        
+        $form = $this->createForm(MassImportType::class);
+        $form->handleRequest($request);
+        $erreur = "";
+        
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $csvFile = $form->get('fichier_csv')->getData();
+            $csvFile = $csvFile->getRealPath();
+            
+
+            $em = $this->getDoctrine()->getManager();
+            
+         
+         
+            if ( $xlsx = \SimpleXLSX::parse($csvFile) ) {
+         
+                    foreach( $xlsx->rows() as $key=> $r ) {
+                        $Film= new Films();
+                        
+                        $Film->setNomFilm($r[1]);
+                        $Film->setDescription($r[2]);
+                        $Film->setNote((int)$r[3]);
+                        $Film->setNombreVotants((int)$r[4]); 
+                    }
+                    $em->persist($Film);
+                    $em->flush();
+         
+            } else {
+                echo \SimpleXLSX::parseError();
+            }
+         
+         
+            
+
+
+        }
+        return $this->renderForm('films/new.html.twig', [
+            'erreur'=>$erreur,
+            'form' => $form,
+            
+        ]);
+        
+        
+       
+        
+        //return $this->render('films/index.html.twig', []);
     }
 
     #[Route('/new', name: 'films_new', methods: ['GET', 'POST'])]

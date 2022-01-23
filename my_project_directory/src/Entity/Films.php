@@ -19,7 +19,7 @@ class Films
     #[ORM\Column(type: 'string', length: 255)]
     private $description;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'integer', length: 255)]
     private $note;
 
     #[ORM\Column(type: 'integer')]
@@ -54,12 +54,12 @@ class Films
         return $this;
     }
 
-    public function getNote(): ?string
+    public function getNote(): ?int
     {
         return $this->note;
     }
 
-    public function setNote(string $note): self
+    public function setNote(int $note): self
     {
         $this->note = $note;
 
