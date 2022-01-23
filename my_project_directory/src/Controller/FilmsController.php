@@ -1,54 +1,79 @@
 <?php
 
 namespace App\Controller;
-use aharen\OMDbAPI;
+
 use App\Entity\Films;
 use App\Form\FilmsType;
+use App\Form\PasswordType;
 use App\Repository\FilmsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\FilmDescriptionService;
 
-#[Route('/films')]
+
+
+
+
+
+#[Route('/')]
 class FilmsController extends AbstractController
 {
     #[Route('/', name: 'films_index', methods: ['GET'])]
     public function index(FilmsRepository $filmsRepository): Response
-    {
+    {   $erreur = "";
+        
+        if(isset($_GET[0]['erreur'])){
+            $erreur = $_GET[0]['erreur'];
+        }
         return $this->render('films/index.html.twig', [
-            'films' => $filmsRepository->findAll(),
+            'films' => $filmsRepository->findBy([],['note'=>'ASC','nomFilm' => 'DESC']),'erreur'=>$erreur
         ]);
     }
 
     #[Route('/new', name: 'films_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $erreur = "";
+        if(isset($_GET['erreur'])){
+            $erreur = $_GET['erreur'];
+        }
         $film = new Films();
         $form = $this->createForm(FilmsType::class, $film);
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
             
-            $omdb = new OMDbAPI('e2f59d');
-            $resultat = $omdb->fetch('t', $_POST["films"]["nomFilm"]);
+            $filmDescriptionService = new filmDescriptionService();
+
+            $resultat = $filmDescriptionService->getDescription($_POST["films"]["nomFilm"]);
+
             
-            $desc = $resultat->data->Plot;
-            $film->setDescription($desc);
-            $entityManager->persist($film);
-            $entityManager->flush();
+            if($resultat == "erreur lors de la recherche dans l'API"){
+                return $this->redirectToRoute('films_new', ['erreur'=>$resultat], Response::HTTP_SEE_OTHER);
+               
+            }else{
+                $desc = $resultat->data->Plot;
+                $film->setDescription($desc);
+                $entityManager->persist($film);
+                $entityManager->flush();
+                return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);
+            }
+            
         
         
             
         
     
-            return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);
+            
         }
 
         return $this->renderForm('films/new.html.twig', [
             'film' => $film,
             'form' => $form,
+            'erreur'=>$erreur,
         ]);
     }
 
@@ -81,11 +106,40 @@ class FilmsController extends AbstractController
     #[Route('/{id}', name: 'films_delete', methods: ['POST'])]
     public function delete(Request $request, Films $film, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$film->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($film);
-            $entityManager->flush();
+        $form = $this->createForm(PasswordType::class, $film);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            
+            $mdp = "leprofdephpavanceeestunbgetilvamemettreun20sur20";
+            $mdpPosted = $_POST['password']['mot_de_passe'];
+            
+
+            if($mdp == $mdpPosted){
+                $id = $request->attributes->get('id');
+                $film = $entityManager->getRepository(Films::class)->find($id);
+                $entityManager->remove($film);
+                $entityManager->flush();
+                return $this->redirectToRoute('films_index', [[]], Response::HTTP_SEE_OTHER);
+            }
+            else{
+                return $this->redirectToRoute('films_index', [['erreur'=>"mot de passe admin incorrect"]], Response::HTTP_SEE_OTHER);
+            }
+            
         }
+
+        return $this->renderForm('films/password.html.twig', [
+            'film' => $film,
+            'form' => $form,
+        ]);
+        
+            
+            
+            return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);
+           
+        
 
         return $this->redirectToRoute('films_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

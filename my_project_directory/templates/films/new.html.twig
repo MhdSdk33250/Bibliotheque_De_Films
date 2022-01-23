@@ -6,6 +6,6 @@
     <h1>Create new Films</h1>
 
     {{ include('films/_form.html.twig') }}
-
+<h1 style="color:red;">{{erreur}}</h1>
     <a href="{{ path('films_index') }}">back to list</a>
 {% endblock %}
