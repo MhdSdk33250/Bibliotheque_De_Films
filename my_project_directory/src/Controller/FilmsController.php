@@ -168,7 +168,8 @@ class FilmsController extends AbstractController
 
         if ($form->isSubmitted()) {
             
-            $mdp = "leprofdephpavanceeestunbgetilvamemettreun20sur20";
+            //$mdp = "leprofdephpavanceeestunbgetilvamemettreun20sur20";
+            $mdp = $this->getParameter('motdepasseadmin');
             $mdpPosted = $_POST['password']['mot_de_passe'];
             
 
