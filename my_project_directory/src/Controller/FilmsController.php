@@ -65,9 +65,10 @@ class FilmsController extends AbstractController
                         $Film->setDescription($r[2]);
                         $Film->setNote((int)$r[3]);
                         $Film->setNombreVotants((int)$r[4]); 
-                    }
-                    $em->persist($Film);
+                        $em->persist($Film);
                     $em->flush();
+                    }
+                    
          
             } else {
                 echo \SimpleXLSX::parseError();
